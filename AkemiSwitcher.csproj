@@ -55,16 +55,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="MainWindow.xaml">
+    <Page Include="AkemiSwitcherUI.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Switcher.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="AkemiSwitcherUI.xaml.cs">
+      <DependentUpon>AkemiSwitcherUI.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -93,13 +94,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources/logo.ico" />
+    <Resource Include="Resources\logo.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources/background.jpg" />
+    <Resource Include="Resources\background.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources/logo.png" />
+    <Resource Include="Resources\logo.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
