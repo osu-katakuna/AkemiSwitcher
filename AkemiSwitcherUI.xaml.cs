@@ -35,7 +35,7 @@ namespace AkemiSwitcher
             versionText.Content = ((App)Application.Current).versionString;
         }
 
-        private void switchOnLoad()
+        public void switchOnLoad()
         {
             btnSwitch.Background = ((App)Application.Current).targetServerBrush();
             btnSwitch.Content = ((App)Application.Current).SwitchTo;
@@ -53,6 +53,11 @@ namespace AkemiSwitcher
 
             //switchOnLoad();
             // ((App)Application.Current).JaPierdole();
+        }
+
+        private void languageSelectionBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            ((App)App.Current).UpdateLanguageByIndex(languageSelectionBox.SelectedIndex);
         }
     }
 }

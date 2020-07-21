@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using AkemiSwitcher.Properties;
+using KaedeCore.Objects;
 using System.Windows;
 using System.Windows.Media;
 
@@ -17,21 +18,33 @@ namespace AkemiSwitcher
         {
             // System.Threading.Thread.CurrentThread.CurrentUICulture = new CultureInfo("zh");
 
-            Translation = KaedeEngine.KaedeEngine.LoadLocale("pl");
+            Translation = KaedeEngine.KaedeEngine.LoadLocale(Settings.Default.PreferredLocale);
 
             AkemiSwitcherUI window = new AkemiSwitcherUI();
-            window.Show();
+            uiRef = window;
 
-            uiRef = ((AkemiSwitcherUI)this.MainWindow);
+            int sIndex = 0;
+
+            foreach (LocalePreview l in Translation.AllLocales)
+            {
+                window.languageSelectionBox.Items.Add(l.LocalisedName);
+                if(l.Id == Translation.Locale.Id)
+                {
+                    window.languageSelectionBox.SelectedIndex = sIndex;
+                }
+                sIndex++;
+            }
 
             if (Utils.IsAdministrator())
             {
                 switcher.LoadHostsFiles();
             } else
             {
-                uiRef.btnSwitch.IsEnabled = false;
-                uiRef.btnSwitch.Content = Translation.GetString("error_NoAdmin");
+                window.btnSwitch.IsEnabled = false;
+                window.btnSwitch.Content = Translation.GetString("error_NoAdmin");
             }
+
+            window.Show();
         }
 
         public bool isSwitching = false;
@@ -103,5 +116,17 @@ namespace AkemiSwitcher
             }
         }
 
+        public void UpdateLanguageByIndex(int Index)
+        {
+            if(Translation != null && Translation.AllLocales[Index] != null)
+            {
+                Settings.Default.PreferredLocale = Translation.AllLocales[Index].Code;
+                Settings.Default.Save();
+
+                Translation = KaedeEngine.KaedeEngine.LoadLocale(Translation.AllLocales[Index].Code);
+
+                uiRef.switchOnLoad();
+            }
+        }
     }
 }

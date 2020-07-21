@@ -53,7 +53,7 @@ namespace KaedeEngine
                     instance.FallbackLocale = l;
                 }
 
-                if(string.Compare(l.Code, TargetLocale) == 0 && l.Id != fbLocaleID && instance.Locale == null) 
+                if(string.Compare(l.Code, TargetLocale) == 0 && instance.Locale == null) 
                     instance.Locale = l;
 
                 instance.AllLocales.Add(new LocalePreview()
