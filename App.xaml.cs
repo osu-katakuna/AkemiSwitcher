@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
 
@@ -14,26 +10,29 @@ namespace AkemiSwitcher
     public partial class App : Application
     {
         Switcher switcher = new Switcher();
+        AkemiSwitcherUI uiRef;
+        KaedeEngine.KaedeEngine Translation;
 
         void App_Startup(object sender, StartupEventArgs e)
         {
+            // System.Threading.Thread.CurrentThread.CurrentUICulture = new CultureInfo("zh");
+
+            Translation = KaedeEngine.KaedeEngine.LoadLocale("pl");
+
             AkemiSwitcherUI window = new AkemiSwitcherUI();
             window.Show();
 
-            switcher.LoadHostsFiles();
+            uiRef = ((AkemiSwitcherUI)this.MainWindow);
+
+            if (Utils.IsAdministrator())
+            {
+                switcher.LoadHostsFiles();
+            } else
+            {
+                uiRef.btnSwitch.IsEnabled = false;
+                uiRef.btnSwitch.Content = Translation.GetString("error_NoAdmin");
+            }
         }
-
-        public void JaPierdole()
-        {
-            AkemiSwitcherUI ui = ((AkemiSwitcherUI)this.MainWindow);
-
-            ui.btnSwitch.Background = this.FindResource("ButtonStateError") as Brush;
-            ui.btnSwitch.IsEnabled = true;
-            ui.btnSwitch.Content = "KURWA JA PIERDOLE APP.CS";
-
-            ui.versionText.Content = "KURWA JA PIERDOLE";
-        }
-
 
         public bool isSwitching = false;
         public bool isKatakuna = true;
@@ -51,7 +50,7 @@ namespace AkemiSwitcher
         {
             get
             {
-                return string.Format("Switch to {0}", getTargetServer());
+                return string.Format(Translation.GetString("prompt_SwitchTo"), getTargetServer());
             }
         }
 
@@ -60,7 +59,7 @@ namespace AkemiSwitcher
             if (isKatakuna && !isBancho) return "Katakuna";
             if (!isKatakuna && isBancho) return "Bancho";
 
-            return "Other server";
+            return Translation.GetString("server_other");
         }
 
         public string getTargetServer()
@@ -83,7 +82,7 @@ namespace AkemiSwitcher
         {
             get
             {
-                return isSwitching ? string.Format("switching to {0}...", server) : string.Format("playing on {0}.", server);
+                return isSwitching ? string.Format(Translation.GetString("status_switching"), server) : string.Format(Translation.GetString("status_playing"), server);
             }
         }
 
@@ -91,7 +90,16 @@ namespace AkemiSwitcher
         {
             get
             {
-                return string.Format("{0} v{1} - {2}", System.Reflection.Assembly.GetEntryAssembly().GetName().Name, System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(), status);
+                return Utils.IsAdministrator() ?
+                    string.Format("{0} v{1} - {2}",
+                        System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                        System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(),
+                        status
+                    ) :
+                    string.Format("{0} v{1}",
+                        System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                        System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString()
+                    );
             }
         }
 

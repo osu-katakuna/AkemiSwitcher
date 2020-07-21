@@ -9,10 +9,11 @@ namespace AkemiSwitcher
     /// </summary>
     public partial class AkemiSwitcherUI : Window
     {
+
+
         public AkemiSwitcherUI()
         {
             InitializeComponent();
-
             switchOnLoad();
         }
 
@@ -51,7 +52,7 @@ namespace AkemiSwitcher
             //((App)Application.Current).isBancho = !((App)Application.Current).isBancho;
 
             //switchOnLoad();
-            ((App)Application.Current).JaPierdole();
+            // ((App)Application.Current).JaPierdole();
         }
     }
 }

@@ -39,6 +39,9 @@
   <PropertyGroup>
     <ApplicationIcon>Resources/logo.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -51,17 +54,22 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
+    <ApplicationDefinition Include="app.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="KaedeEngine\KaedeEngine.cs" />
+    <Compile Include="KaedeEngine\LocalePreview.cs" />
+    <Compile Include="KaedeEngine\Locale.cs" />
+    <Compile Include="KaedeEngine\LocaleString.cs" />
+    <Compile Include="Utils.cs" />
     <Page Include="AkemiSwitcherUI.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="Switcher.cs" />
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
+    <Compile Include="app.xaml.cs">
+      <DependentUpon>app.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AkemiSwitcherUI.xaml.cs">
@@ -88,10 +96,12 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
+    <None Include="app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <EmbeddedResource Include="Translation\AkemiSwitcher.ktf" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\logo.ico" />
@@ -102,5 +112,6 @@
   <ItemGroup>
     <Resource Include="Resources\logo.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
