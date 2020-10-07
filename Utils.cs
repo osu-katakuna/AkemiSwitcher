@@ -4,7 +4,6 @@ namespace AkemiSwitcher
 {
     class Utils
     {
-
         public static bool IsAdministrator()
         {
             WindowsIdentity identity = WindowsIdentity.GetCurrent();

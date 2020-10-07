@@ -7,12 +7,11 @@ namespace AkemiSwitcher
 {
     class Switcher
     {
-
-
+        Hosts hosts = new Hosts();
 
         public void LoadHostsFiles()
         {
-            // load hosts file smh
+            _ = hosts.Parse();
         }
     }
 }

@@ -16,8 +16,6 @@ namespace AkemiSwitcher
 
         void App_Startup(object sender, StartupEventArgs e)
         {
-            // System.Threading.Thread.CurrentThread.CurrentUICulture = new CultureInfo("zh");
-
             Translation = KaedeEngine.KaedeEngine.LoadLocale(Settings.Default.PreferredLocale);
 
             AkemiSwitcherUI window = new AkemiSwitcherUI();
@@ -69,7 +67,7 @@ namespace AkemiSwitcher
 
         public string getCurrentServer()
         {
-            if (isKatakuna && !isBancho) return "Katakuna";
+            if (isKatakuna && !isBancho) return BuildInfo.ServerName;
             if (!isKatakuna && isBancho) return "Bancho";
 
             return Translation.GetString("server_other");
@@ -78,9 +76,9 @@ namespace AkemiSwitcher
         public string getTargetServer()
         {
             if (isKatakuna) return "Bancho";
-            if (isBancho) return "Katakuna";
+            if (isBancho) return BuildInfo.ServerName;
 
-            return "Katakuna";
+            return BuildInfo.ServerName;
         }
 
         public Brush targetServerBrush()
