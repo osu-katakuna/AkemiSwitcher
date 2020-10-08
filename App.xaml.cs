@@ -14,6 +14,8 @@ namespace AkemiSwitcher
         AkemiSwitcherUI uiRef;
         KaedeEngine.KaedeEngine Translation;
 
+        SwitcherMessageEvent lastEv;
+
         void App_Startup(object sender, StartupEventArgs e)
         {
             Translation = KaedeEngine.KaedeEngine.LoadLocale(Settings.Default.PreferredLocale);
@@ -33,85 +35,83 @@ namespace AkemiSwitcher
                 sIndex++;
             }
 
-            if (Utils.IsAdministrator())
-            {
-                switcher.LoadHostsFiles();
-            } else
-            {
-                window.btnSwitch.IsEnabled = false;
-                window.btnSwitch.Content = Translation.GetString("error_NoAdmin");
-            }
+            window.btnSwitch.Background = this.FindResource("ButtonStateDisabled") as Brush;
+            window.btnSwitch.IsEnabled = false;
+            window.btnSwitch.Content = Translation.GetString("info_wait");
+            window.versionText.Content = string.Format("{0} v{1}",
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString()
+            );
 
             window.Show();
+
+            switcher.OnSwitcherMessage += onSwitcherMessage;
+            switcher.Prepare();
         }
 
-        public bool isSwitching = false;
-        public bool isKatakuna = true;
-        public bool isBancho = false;
-
-        public string server
+        public void onSwitcherMessage(object sender, SwitcherMessageEvent e)
         {
-            get
+            lastEv = e;
+            string appendVersion = "";
+
+            switch(e.eventType)
             {
-                return !isSwitching ? getCurrentServer() : getTargetServer();
+                case SwitcherEvent.ServerConnecting:
+                    if (!e.justText)
+                    {
+                        uiRef.btnSwitch.Background = this.FindResource("ButtonStateDisabled") as Brush;
+                        uiRef.btnSwitch.IsEnabled = false;
+                    }
+                    uiRef.btnSwitch.Content = Translation.GetString("info_server");
+                    appendVersion = Translation.GetString("info_server_short").ToLower();
+                    break;
+                case SwitcherEvent.PleaseWait:
+                    if(!e.justText)
+                    {
+                        uiRef.btnSwitch.Background = this.FindResource("ButtonStateDisabled") as Brush;
+                        uiRef.btnSwitch.IsEnabled = false;
+                    }
+                    uiRef.btnSwitch.Content = Translation.GetString("info_wait");
+                    appendVersion = Translation.GetString("info_wait").ToLower();
+                    break;
+                case SwitcherEvent.ServerError:
+                    if (!e.justText)
+                    {
+                        uiRef.btnSwitch.IsEnabled = false;
+                        uiRef.btnSwitch.Background = this.FindResource("ButtonStateError") as Brush;
+                    }
+                    uiRef.btnSwitch.Content = Translation.GetString("error_server");
+                    break;
+                case SwitcherEvent.NoAdminRights:
+                    if (!e.justText)
+                    {
+                        uiRef.btnSwitch.Background = this.FindResource("ButtonStateDisabled") as Brush;
+                        uiRef.btnSwitch.IsEnabled = false;
+                    }
+                    uiRef.btnSwitch.Content = Translation.GetString("error_NoAdmin");
+                    break;
+                case SwitcherEvent.ServerSwitch:
+                    if (!e.justText)
+                    {
+                        uiRef.btnSwitch.Background = this.FindResource("ButtonStateNormal") as Brush;
+                        uiRef.btnSwitch.IsEnabled = true;
+                    }
+                    string playingOn = "";
+
+                    if (switcher.onCurrentServer == SwitcherServer.Bancho) playingOn = "Bancho";
+                    else if (switcher.onCurrentServer == SwitcherServer.Other) playingOn = Translation.GetString("server_other");
+                    else if (switcher.onCurrentServer == SwitcherServer.Private) playingOn = BuildInfo.ServerName;
+
+                    uiRef.btnSwitch.Content = string.Format(Translation.GetString("prompt_SwitchTo"), switcher.GetSwitchToText());
+                    appendVersion = string.Format(Translation.GetString("status_playing"), playingOn);
+                    break;
             }
-        }
 
-        public string SwitchTo
-        {
-            get
-            {
-                return string.Format(Translation.GetString("prompt_SwitchTo"), getTargetServer());
-            }
-        }
-
-        public string getCurrentServer()
-        {
-            if (isKatakuna && !isBancho) return BuildInfo.ServerName;
-            if (!isKatakuna && isBancho) return "Bancho";
-
-            return Translation.GetString("server_other");
-        }
-
-        public string getTargetServer()
-        {
-            if (isKatakuna) return "Bancho";
-            if (isBancho) return BuildInfo.ServerName;
-
-            return BuildInfo.ServerName;
-        }
-
-        public Brush targetServerBrush()
-        {
-            if (isKatakuna) return this.FindResource("ButtonStateNormal") as Brush;
-            if (isBancho) return this.FindResource("ButtonStateOK") as Brush;
-
-            return this.FindResource("ButtonStateNormal") as Brush;
-        }
-
-        public string status
-        {
-            get
-            {
-                return isSwitching ? string.Format(Translation.GetString("status_switching"), server) : string.Format(Translation.GetString("status_playing"), server);
-            }
-        }
-
-        public string versionString
-        {
-            get
-            {
-                return Utils.IsAdministrator() ?
-                    string.Format("{0} v{1} - {2}",
-                        System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                        System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(),
-                        status
-                    ) :
-                    string.Format("{0} v{1}",
-                        System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                        System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString()
-                    );
-            }
+            uiRef.versionText.Content = string.Format(appendVersion.Length > 0 ? "{0} v{1} - {2}" : "{0} v{1}",
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(),
+                appendVersion
+            );
         }
 
         public void UpdateLanguageByIndex(int Index)
@@ -123,7 +123,12 @@ namespace AkemiSwitcher
 
                 Translation = KaedeEngine.KaedeEngine.LoadLocale(Translation.AllLocales[Index].Code);
 
-                uiRef.switchOnLoad();
+                if (lastEv != null)
+                {
+                    SwitcherMessageEvent t = lastEv;
+                    t.justText = true;
+                    onSwitcherMessage(null, t);
+                }
             }
         }
     }

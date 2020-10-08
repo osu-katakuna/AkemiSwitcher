@@ -8,8 +8,8 @@ namespace AkemiSwitcher
 {
     class BuildInfo
     {
-        public static string ServerName = "Katakuna";
+        public static string ServerName = "katakuna";
         public static string StaticServerIP = "51.83.241.127";
-        public static string IPRequestRoute = "https://katakuna.cc/query-server-ip";
+        public static string SwitcherServerList = "https://raw.githubusercontent.com/osu-katakuna/common/master/AkemiSwitcher.Servers.json";
     }
 }
