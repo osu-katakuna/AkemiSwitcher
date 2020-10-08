@@ -49,6 +49,11 @@ namespace AkemiSwitcher
             switcher.Prepare();
         }
 
+        public void PerformSwitcherAction()
+        {
+            _ = switcher.PerformSwitch();
+        }
+
         public void onSwitcherMessage(object sender, SwitcherMessageEvent e)
         {
             uiRef.fallbackLabel.Visibility = e.serverFailure ? Visibility.Visible : Visibility.Hidden;
@@ -74,8 +79,8 @@ namespace AkemiSwitcher
                         uiRef.btnSwitch.Background = this.FindResource("ButtonStateDisabled") as Brush;
                         uiRef.btnSwitch.IsEnabled = false;
                     }
-                    uiRef.btnSwitch.Content = Translation.GetString("info_server");
-                    appendVersion = Translation.GetString("info_server_short").ToLower();
+                    uiRef.btnSwitch.Content = string.Format(Translation.GetString("info_switching"), switcher.GetSwitchToText());
+                    appendVersion = string.Format(Translation.GetString("status_switching"), switcher.GetSwitchToText()).ToLower();
                     break;
                 case SwitcherEvent.PleaseWait:
                     if(!e.justText)
@@ -105,7 +110,7 @@ namespace AkemiSwitcher
                 case SwitcherEvent.ServerSwitch:
                     if (!e.justText)
                     {
-                        uiRef.btnSwitch.Background = this.FindResource("ButtonStateNormal") as Brush;
+                        uiRef.btnSwitch.Background = switcher.onCurrentServer == SwitcherServer.Private ? this.FindResource("ButtonStateOK") as Brush : this.FindResource("ButtonStateNormal") as Brush;
                         uiRef.btnSwitch.IsEnabled = true;
                     }
                     string playingOn = "";

@@ -18,7 +18,7 @@ namespace AkemiSwitcher
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            // do stuff
+            ((App)App.Current).PerformSwitcherAction();
         }
 
         private void languageSelectionBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

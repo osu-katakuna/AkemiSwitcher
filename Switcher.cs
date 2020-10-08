@@ -21,6 +21,9 @@ namespace AkemiSwitcher
             "c4.ppy.sh",
             "c5.ppy.sh",
             "c6.ppy.sh",
+            "ce.ppy.sh",
+            "i.ppy.sh",
+            "delta.ppy.sh",
             "a.ppy.sh",
             "s.ppy.sh"
         };
@@ -29,6 +32,34 @@ namespace AkemiSwitcher
         {
             if (onCurrentServer == SwitcherServer.Private) return "Bancho";
             return BuildInfo.ServerName;
+        }
+
+        internal async Task PerformSwitch()
+        {
+            OnSwitcherMessage?.Invoke(null, new SwitcherMessageEvent()
+            {
+                eventType = SwitcherEvent.ServerSwitchInProgress,
+                server = onCurrentServer,
+                serverFailure = !serverSuccess
+            });
+
+            if(onCurrentServer == SwitcherServer.Private)
+            {
+                foreach (HostEntry a in serverEntries)
+                    hosts.hostEntries.RemoveAll(x => x.targetDomain == a.targetDomain);
+            } else {
+                foreach (HostEntry a in serverEntries)
+                {
+                    if (hosts.hostEntries.Exists(x => x.targetDomain == a.targetDomain))
+                        hosts.hostEntries.Find(x => x.targetDomain == a.targetDomain).ipAddress = a.ipAddress;
+                    else
+                        hosts.hostEntries.Add(a);
+                }
+            }
+
+            hosts.Save();
+
+            HostsCheck();
         }
 
         internal async Task PerformServerConnection()
@@ -78,6 +109,26 @@ namespace AkemiSwitcher
             return;
         }
 
+        internal async Task HostsCheck()
+        {
+            await hosts.Parse();
+
+            // check if we are switched to a server. search for known DNS-es
+            List<HostEntry> knownHosts = hosts.hostEntries.FindAll(host => serverEntries.Exists(s => s.targetDomain == host.targetDomain));
+            List<HostEntry> ourServer = knownHosts.FindAll(known => serverEntries.Exists(s => s.ipAddress == known.ipAddress));
+
+            if (knownHosts.Count == 0) onCurrentServer = SwitcherServer.Bancho;
+            else if (ourServer.Count > 0) onCurrentServer = SwitcherServer.Private;
+            else onCurrentServer = SwitcherServer.Other;
+
+            OnSwitcherMessage?.Invoke(null, new SwitcherMessageEvent()
+            {
+                eventType = SwitcherEvent.ServerSwitch,
+                server = onCurrentServer,
+                serverFailure = !serverSuccess
+            });
+        }
+
         public async void Prepare()
         {
             OnSwitcherMessage?.Invoke(null, new SwitcherMessageEvent()
@@ -125,22 +176,7 @@ namespace AkemiSwitcher
                 serverFailure = !serverSuccess
             });
 
-            await hosts.Parse();
-
-            // check if we are switched to a server. search for known DNS-es
-            List<HostEntry> knownHosts = hosts.hostEntries.FindAll(host => serverEntries.Exists(s => s.targetDomain == host.targetDomain));
-            List<HostEntry> ourServer = knownHosts.FindAll(known => serverEntries.Exists(s => s.ipAddress == known.ipAddress));
-
-            if(knownHosts.Count == 0) onCurrentServer = SwitcherServer.Bancho;
-            else if(ourServer.Count > 0) onCurrentServer = SwitcherServer.Private;
-            else onCurrentServer = SwitcherServer.Other;
-
-            OnSwitcherMessage?.Invoke(null, new SwitcherMessageEvent()
-            {
-                eventType = SwitcherEvent.ServerSwitch,
-                server = onCurrentServer,
-                serverFailure = !serverSuccess
-            });
+            await HostsCheck();
         }
     }
 }

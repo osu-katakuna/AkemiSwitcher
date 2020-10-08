@@ -56,7 +56,14 @@ namespace AkemiSwitcher
         public async Task Save()
         {
             if (hostEntries.Count == 0) throw new Exception("hostEntries.Count = 0");
-            foreach (HostEntry h in hostEntries) Console.WriteLine(h);
+            using (StreamWriter writer = new StreamWriter(HostsPath)) // open hosts file
+            {
+                foreach (HostEntry h in hostEntries)
+                {
+                    if (h is HostCommentEntry) writer.WriteLine(((HostCommentEntry)h).comment);
+                    else writer.WriteLine(string.Format("{0}\t{1}", h.ipAddress, h.targetDomain));
+                }
+            }
         }
     }
 }
