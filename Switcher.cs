@@ -99,7 +99,13 @@ namespace AkemiSwitcher
                 eventType = SwitcherEvent.ServerConnecting
             });
 
-            await PerformServerConnection();
+            try
+            {
+                await PerformServerConnection();
+            } catch(WebException e)
+            {
+                serverSuccess = false;
+            }
 
             if(!serverSuccess)
             {
@@ -115,7 +121,8 @@ namespace AkemiSwitcher
 
             OnSwitcherMessage?.Invoke(null, new SwitcherMessageEvent()
             {
-                eventType = SwitcherEvent.PleaseWait
+                eventType = SwitcherEvent.PleaseWait,
+                serverFailure = !serverSuccess
             });
 
             await hosts.Parse();
@@ -131,7 +138,8 @@ namespace AkemiSwitcher
             OnSwitcherMessage?.Invoke(null, new SwitcherMessageEvent()
             {
                 eventType = SwitcherEvent.ServerSwitch,
-                server = onCurrentServer
+                server = onCurrentServer,
+                serverFailure = !serverSuccess
             });
         }
     }

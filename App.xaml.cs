@@ -51,12 +51,24 @@ namespace AkemiSwitcher
 
         public void onSwitcherMessage(object sender, SwitcherMessageEvent e)
         {
+            uiRef.fallbackLabel.Visibility = e.serverFailure ? Visibility.Visible : Visibility.Hidden;
+            uiRef.fallbackLabel.Content = Translation.GetString("info_fallback");
+
             lastEv = e;
             string appendVersion = "";
 
             switch(e.eventType)
             {
                 case SwitcherEvent.ServerConnecting:
+                    if (!e.justText)
+                    {
+                        uiRef.btnSwitch.Background = this.FindResource("ButtonStateDisabled") as Brush;
+                        uiRef.btnSwitch.IsEnabled = false;
+                    }
+                    uiRef.btnSwitch.Content = Translation.GetString("info_server");
+                    appendVersion = Translation.GetString("info_server_short").ToLower();
+                    break;
+                case SwitcherEvent.ServerSwitchInProgress:
                     if (!e.justText)
                     {
                         uiRef.btnSwitch.Background = this.FindResource("ButtonStateDisabled") as Brush;

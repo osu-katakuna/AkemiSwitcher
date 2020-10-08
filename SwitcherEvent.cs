@@ -12,6 +12,7 @@ namespace AkemiSwitcher
         public SwitcherServer server;
         public string message;
         public bool justText = false;
+        public bool serverFailure = false;
     }
 
     public enum SwitcherEvent
@@ -21,7 +22,8 @@ namespace AkemiSwitcher
         ServerSwitch,
         SwitcherError,
         PleaseWait,
-        ServerConnecting
+        ServerConnecting,
+        ServerSwitchInProgress
     };
 
     public enum SwitcherServer

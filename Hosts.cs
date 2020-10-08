@@ -56,6 +56,7 @@ namespace AkemiSwitcher
         public async Task Save()
         {
             if (hostEntries.Count == 0) throw new Exception("hostEntries.Count = 0");
+            foreach (HostEntry h in hostEntries) Console.WriteLine(h);
         }
     }
 }

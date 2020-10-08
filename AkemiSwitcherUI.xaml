@@ -20,5 +20,6 @@
         <Button x:Name="btnSwitch" Content="PogChamp" Margin="44,0,45,63" Height="47" FontSize="18" BorderThickness="0" FontStretch="ExtraCondensed" FontWeight="Thin" Style="{StaticResource RoundButton}" Click="Button_Click" IsEnabled="False" VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="340"/>
         <ComboBox x:Name="languageSelectionBox" HorizontalAlignment="Right" Margin="0,10,10,0" VerticalAlignment="Top" Width="120" SelectionChanged="languageSelectionBox_SelectionChanged">
         </ComboBox>
+        <Label x:Name="fallbackLabel" Content="FALLBACK MODE" HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="Red" Margin="6,0,0,24" Background="White" Height="25" Visibility="Hidden"/>
     </Grid>
 </Window>

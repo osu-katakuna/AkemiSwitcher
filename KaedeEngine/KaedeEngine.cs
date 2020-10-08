@@ -84,7 +84,10 @@ namespace KaedeEngine
                 return FallbackLocale.GetString(Name) == null ? Name : FallbackLocale.GetString(Name);
             }
 
-            return Locale.GetString(Name) == null ? Name : Locale.GetString(Name);
+            var ls = Locale.GetString(Name);
+            var fs = FallbackLocale != null ? FallbackLocale.GetString(Name) : null;
+
+            return ls == null || ls.Length == 0 ? (fs == null || fs.Length == 0 ? Name : fs) : ls;
         }
     }
 }
