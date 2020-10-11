@@ -30,12 +30,6 @@
                         <Border x:Name="BtnBorder" CornerRadius="20" Background="{TemplateBinding Property=Background}" BorderThickness="1">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="BtnBorder" Property="Background" Value="{DynamicResource ButtonStateDisabled}"/>
-                                <Setter Property="Foreground" Value="Black"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>

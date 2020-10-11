@@ -1,5 +1,9 @@
 ﻿using AkemiSwitcher.Properties;
 using KaedeCore.Objects;
+using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Media;
 
@@ -18,6 +22,7 @@ namespace AkemiSwitcher
 
         void App_Startup(object sender, StartupEventArgs e)
         {
+            AppDomain.CurrentDomain.AssemblyResolve += OnResolveAssembly;
             Translation = KaedeEngine.KaedeEngine.LoadLocale(Settings.Default.PreferredLocale);
 
             AkemiSwitcherUI window = new AkemiSwitcherUI();
@@ -49,9 +54,21 @@ namespace AkemiSwitcher
             switcher.Prepare();
         }
 
+        public string GetTranslationString(string x)
+        {
+            return Translation.GetString(x);
+        }
+
         public void PerformSwitcherAction()
         {
             _ = switcher.PerformSwitch();
+        }
+
+        public void UpdateMode()
+        {
+            uiRef?.Hide();
+            AkemiSwitcherUpdate u = new AkemiSwitcherUpdate();
+            u.Show();
         }
 
         public void onSwitcherMessage(object sender, SwitcherMessageEvent e)
@@ -147,6 +164,42 @@ namespace AkemiSwitcher
                     onSwitcherMessage(null, t);
                 }
             }
+        }
+
+        private static Assembly OnResolveAssembly(object sender, ResolveEventArgs e)
+        {
+            var thisAssembly = Assembly.GetExecutingAssembly();
+
+            var assemblyName = new AssemblyName(e.Name);
+            var dllName = assemblyName.Name + ".dll";
+
+            var resources = thisAssembly.GetManifestResourceNames().Where(s => s.EndsWith(dllName));
+            if (resources.Any())
+            {
+                var resourceName = resources.First();
+                using (var stream = thisAssembly.GetManifestResourceStream(resourceName))
+                {
+                    if (stream == null) return null;
+                    var block = new byte[stream.Length];
+
+                    try
+                    {
+                        stream.Read(block, 0, block.Length);
+                        return Assembly.Load(block);
+                    }
+                    catch (IOException)
+                    {
+                        return null;
+                    }
+                    catch (BadImageFormatException)
+                    {
+                        return null;
+                    }
+                }
+            }
+
+            // in the case the resource doesn't exist, return null.
+            return null;
         }
     }
 }
