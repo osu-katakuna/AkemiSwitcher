@@ -17,6 +17,7 @@ namespace AkemiSwitcher
 {
     public partial class AkemiSwitcherUpdate : Form
     {
+#if UPDATABLE
         string UpdateText = "";
         int Percentage = 0;
         string updateFilePath = Path.Combine(Application.StartupPath, "AkemiSwitcher.Update.tmp");
@@ -68,7 +69,6 @@ namespace AkemiSwitcher
             MessageBox.Show(((App)App.Current).GetTranslationString("message_updateFailed"), ((App)App.Current).GetTranslationString("title_updateFailed"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             this.Close();
         }
-
         private void DownloadProgressCallback(object sender, DownloadProgressChangedEventArgs e)
         {
             ProgressValue = e.ProgressPercentage;
@@ -142,7 +142,7 @@ namespace AkemiSwitcher
                 //wc.DownloadFileCompleted += SwitcherUpdateComplete;
                 wc.DownloadProgressChanged += DownloadProgressCallback;
 
-                await wc.DownloadFileTaskAsync(new Uri((string)latestVersion.SelectToken("downloadURL")), updateFilePath);
+                await wc.DownloadFileTaskAsync(new Uri((string)latestVersion.SelectToken("downloadURL") + "?" + new Random().Next()), updateFilePath);
             }
         }
 
@@ -152,5 +152,6 @@ namespace AkemiSwitcher
             ((App)App.Current).Shutdown();
             System.Environment.Exit(0);
         }
+#endif
     }
 }

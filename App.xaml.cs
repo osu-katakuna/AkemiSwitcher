@@ -166,6 +166,11 @@ namespace AkemiSwitcher
             }
         }
 
+        public void CertSetupError(string error)
+        {
+            MessageBox.Show(string.Format(GetTranslationString("error_certs"), error), "", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
         private static Assembly OnResolveAssembly(object sender, ResolveEventArgs e)
         {
             var thisAssembly = Assembly.GetExecutingAssembly();

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -19,6 +21,7 @@ namespace AkemiSwitcher
     {
         Hosts hosts = new Hosts();
         public event EventHandler<SwitcherMessageEvent> OnSwitcherMessage;
+        CertificateManager certificateManager;
         internal List<HostEntry> serverEntries = new List<HostEntry>();
 #if ONLINE_SERVERS
         internal bool serverSuccess = false;
@@ -38,6 +41,15 @@ namespace AkemiSwitcher
             "s.ppy.sh"
         };
 #endif
+
+        public void CertificateSetup()
+        {
+            if (certificateManager == null) certificateManager = new CertificateManager {
+                ServerCertificate = new X509Certificate2(Properties.Resources.serverCertificate)
+            };
+            if(!certificateManager.checkForCertificate())
+                certificateManager.installCertificate();
+        }
 
         public string GetSwitchToText()
         {
@@ -62,7 +74,15 @@ namespace AkemiSwitcher
 #endif
             });
 
-            if(onCurrentServer == SwitcherServer.Private)
+            CertificateSetup();
+
+            if(!certificateManager.checkForCertificate())
+            {
+                HostsCheck();
+                return;
+            }
+
+            if (onCurrentServer == SwitcherServer.Private)
             {
                 foreach (HostEntry a in serverEntries)
                     hosts.hostEntries.RemoveAll(x => x.targetDomain == a.targetDomain);
@@ -84,7 +104,7 @@ namespace AkemiSwitcher
         internal async Task PerformServerConnection()
         {
             var webClient = new WebClient();
-            string serverOutput = webClient.DownloadString(BuildInfo.SwitcherServerList);
+            string serverOutput = webClient.DownloadString(BuildInfo.SwitcherServerList + "?" + new Random().Next());
 
             JToken token = JObject.Parse(serverOutput);
 
@@ -187,26 +207,35 @@ namespace AkemiSwitcher
             if (File.Exists(Path.Combine(System.Windows.Forms.Application.StartupPath, "AkemiSwitcher.Update.tmp"))) File.Delete(Path.Combine(System.Windows.Forms.Application.StartupPath, "AkemiSwitcher.Update.tmp"));
 
             var webClient = new WebClient();
-            string serverOutput = webClient.DownloadString(BuildInfo.UpdateVersionList);
+            string serverOutput = webClient.DownloadString(BuildInfo.UpdateVersionList + "?" + new Random().Next());
 
             JToken token = JObject.Parse(serverOutput);
 
             string target = (string) token.SelectToken("target");
             if(target == null || !target.Equals("AkemiSwitcher"))
             {
-                goto SERVER_FAILURE;
+                OnSwitcherMessage?.Invoke(null, new SwitcherMessageEvent()
+                {
+                    eventType = SwitcherEvent.ServerError
+                });
             }
 
             JToken data = token.SelectToken("data");
             if (data == null)
             {
-                goto SERVER_FAILURE;
+                OnSwitcherMessage?.Invoke(null, new SwitcherMessageEvent()
+                {
+                    eventType = SwitcherEvent.ServerError
+                });
             }
 
             JToken versions = data.SelectToken("versions");
             if(versions == null)
             {
-                goto SERVER_FAILURE;
+                OnSwitcherMessage?.Invoke(null, new SwitcherMessageEvent()
+                {
+                    eventType = SwitcherEvent.ServerError
+                });
             }
 
             string latestVersionString = (string) versions.ToList().OrderByDescending(x => int.Parse(((string)x.SelectToken("versionCode")).Replace(".", ""))).First().SelectToken("versionCode");
@@ -287,14 +316,6 @@ namespace AkemiSwitcher
             }
 
             await HostsCheck();
-#if UPDATABLE
-        SERVER_FAILURE:
-            OnSwitcherMessage?.Invoke(null, new SwitcherMessageEvent()
-            {
-                eventType = SwitcherEvent.ServerError
-            });
-            return;
-#endif
         }
     }
 }

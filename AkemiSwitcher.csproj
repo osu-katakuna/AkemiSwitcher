@@ -83,6 +83,7 @@
       <DependentUpon>AkemiSwitcherUpdate.cs</DependentUpon>
     </Compile>
     <Compile Include="BuildInfo.cs" />
+    <Compile Include="CertificateManager.cs" />
     <Compile Include="HostEntry.cs" />
     <Compile Include="Hosts.cs" />
     <Compile Include="KaedeEngine\KaedeEngine.cs" />
@@ -130,10 +131,11 @@
       <DependentUpon>AkemiSwitcherUpdate.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Translation\AkemiSwitcher.ktf" />
+    <None Include="Resources\serverCertificate.crt" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\logo.ico" />
