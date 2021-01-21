@@ -207,6 +207,10 @@ namespace AkemiSwitcher
             if (File.Exists(Path.Combine(System.Windows.Forms.Application.StartupPath, "AkemiSwitcher.Update.tmp"))) File.Delete(Path.Combine(System.Windows.Forms.Application.StartupPath, "AkemiSwitcher.Update.tmp"));
 
             var webClient = new WebClient();
+
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             string serverOutput = webClient.DownloadString(BuildInfo.UpdateVersionList + "?" + new Random().Next());
 
             JToken token = JObject.Parse(serverOutput);
