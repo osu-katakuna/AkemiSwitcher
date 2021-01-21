@@ -316,8 +316,8 @@ namespace AkemiSwitcher
                 });
                 return;
 #endif
-#endif
             }
+#endif
 
             await HostsCheck();
         }
