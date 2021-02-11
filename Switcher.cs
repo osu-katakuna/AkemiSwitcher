@@ -38,7 +38,8 @@ namespace AkemiSwitcher
             "i.ppy.sh",
             "delta.ppy.sh",
             "a.ppy.sh",
-            "s.ppy.sh"
+            "s.ppy.sh",
+            "osu.ppy.sh"
         };
 #endif
 
